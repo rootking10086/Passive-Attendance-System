@@ -24,7 +24,7 @@ sudo make install
 ```bash
 sudo ifconfig wlan0 down
 sudo apt install iptables -y
-sudo create_ap wlan0 lo wifi_pi 12345678
+sudo create_ap wlan0 lo wifi_pi 12345678    #热点名称:wifi_pi 热点密码:12345678
 ```
 
 ## 配置开机自启

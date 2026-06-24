@@ -29,7 +29,7 @@ app = Flask(__name__)
 # === 配置数据库和 JWT ===
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'    # 自动指向 instance/users.db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'I-n8FuU7KSCNWv-3Pfp-Szj3c_CLtJc_R-dSR6_Aupo'
+app.config['JWT_SECRET_KEY'] = '替换为你的密钥'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # 设置 access token 有效期为 1 小时
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)  # 设置 refresh token 有效期为 7 天
 
@@ -47,7 +47,7 @@ def create_tokens(user_identity):
     return access_token, refresh_token
 
 # === 签名密钥 ===
-SECRET_KEY = "qt-kOi34txlRrByAwdiVlQPJ54bh7a3mmJuJOc3kA9Y"
+SECRET_KEY = "替换为你的签名密钥"
 LOG_FILE = "考勤日志.txt"
 
 def generate_signature(user_id, device_id, timestamp):
@@ -60,8 +60,8 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)  # ✅ 新增字段
-    last_logout_time = db.Column(db.DateTime, nullable=True)  # ✅ 新增字段
+    is_admin = db.Column(db.Boolean, default=False)
+    last_logout_time = db.Column(db.DateTime, nullable=True)
 
     attendances = db.relationship('Attendance', backref='user', cascade="all, delete-orphan")
     refresh_tokens = db.relationship('RefreshToken', backref='user', cascade="all, delete-orphan")
@@ -75,9 +75,9 @@ class Attendance(db.Model):
     timestamp = db.Column(db.Integer, nullable=False)
     received_at = db.Column(db.String(80), nullable=False)
     from_cache = db.Column(db.Boolean, default=False, nullable=False)
-    source = db.Column(db.String(20), default="unknown")  # ✅ 新增字段
+    source = db.Column(db.String(20), default="unknown")
 
-    clock_out_timestamp = db.Column(db.Integer, nullable=True)              # 下班时间（可为空）
+    clock_out_timestamp = db.Column(db.Integer, nullable=True)         # 下班时间（可为空）
     clock_in_status = db.Column(db.String(20), nullable=True)          # 上班打卡状态
     clock_out_status = db.Column(db.String(20), default="NOT_CLOCKED") # 下班打卡状态
     has_appeal = db.Column(db.Boolean, default=False)
@@ -85,7 +85,7 @@ class Attendance(db.Model):
 class LeaveRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(80), nullable=False)
-    leave_type = db.Column(db.String(20), nullable=False)  # "leave" or "out"
+    leave_type = db.Column(db.String(20), nullable=False)
     reason = db.Column(db.String(255), nullable=False)
     start_time = db.Column(db.String(80), nullable=False)  # ISO 格式时间字符串
     end_time = db.Column(db.String(80), nullable=False)
@@ -114,8 +114,8 @@ class Beacon(db.Model):
 
 class ExportLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(80), nullable=True)  # 空表示全部用户导出
-    month = db.Column(db.String(7), nullable=False)  # 格式 YYYY-MM
+    user_id = db.Column(db.String(80), nullable=True)
+    month = db.Column(db.String(7), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
     exported_at = db.Column(db.DateTime, default=lambda: datetime.now(ZoneInfo('Asia/Shanghai')).replace(tzinfo=None))
 
@@ -126,8 +126,8 @@ class Config(db.Model):
 
 class ForbiddenPeriod(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    start_time = db.Column(db.String(5), nullable=False)  # HH:MM
-    end_time = db.Column(db.String(5), nullable=False)    # HH:MM
+    start_time = db.Column(db.String(5), nullable=False)
+    end_time = db.Column(db.String(5), nullable=False)
     reason = db.Column(db.String(255), nullable=False, default="禁止打卡")
 
 # === 初始化数据库 ===
@@ -137,7 +137,7 @@ def create_tables():
 
 create_tables()
 
-# === 通用获取配置项（字符串） ===
+# === 通用获取配置项 ===
 def get_config_value(key: str, default: str = None) -> str:
     config = Config.query.filter_by(key=key).first()
     return config.value if config else default
@@ -273,11 +273,12 @@ def login():
         all_beacons = Beacon.query.all()
         beacon_list = [b.to_dict() for b in all_beacons]
 
+        # 返回角色信息
         return jsonify(
             access_token=access_token,
             refresh_token=refresh_token,
             username=username,
-            role="admin" if user.is_admin else "user",  # 返回角色信息
+            role="admin" if user.is_admin else "user",
             beacons=beacon_list
         ), 200
 
@@ -295,7 +296,6 @@ def refresh():
         print("Refresh token 获取失败:", e)
         return jsonify({"msg": "Refresh 失败"}), 401
 
-###############################
 # === 获取当前用户信息 ===
 @app.route('/me', methods=['GET'])
 @jwt_required()
@@ -331,7 +331,7 @@ def log_attendance(data, user_id, result_code, received_at=None):
         "received_at": received_at or datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),
         "from_cache": str(data.get("from_cache")).lower() == "true",
         "source": data.get("source", "unknown"),
-        "result": result_text  # ✅ 中文描述
+        "result": result_text
     }
 
     with open(LOG_FILE, "a", encoding="utf-8") as f:
@@ -438,7 +438,7 @@ def upload_attendance():
             timestamp=timestamp,
             received_at=now.isoformat(),
             from_cache=from_cache,
-            source=incoming_source  # ✅ 加入 source
+            source=incoming_source
         )
         db.session.add(record)
         db.session.commit()
@@ -447,8 +447,9 @@ def upload_attendance():
 
         return jsonify(success=True, message="打卡记录已保存", receivedAt=record.received_at, offlineRetry=from_cache), 200
 
+    # 打印完整错误堆栈
     except Exception as e:
-        traceback.print_exc()  # ✅ 打印完整错误堆栈
+        traceback.print_exc()
         return jsonify(success=False, error=f"服务器错误: {str(e)}"), 500
 
 # === 请假或外出上传记录 ===
@@ -513,7 +514,7 @@ def submit_leave():
 
 # === 获取当前用户的请假/外出记录 ===
 @app.route('/leave', methods=['GET'])
-@jwt_required(optional=True)  # 👈 Token 可选
+@jwt_required(optional=True)
 def get_leave_records():
     try:
         current_user = get_jwt_identity()
@@ -543,7 +544,6 @@ def get_leave_records():
         traceback.print_exc()
         return jsonify(success=False, error=f"服务器错误: {str(e)}"), 500
 
-###############################
 # === 清除请假/外出的全部记录 ===
 @app.route('/clear_leave_records', methods=['POST'])
 def clear_leave_records():
@@ -558,7 +558,6 @@ def clear_leave_records():
         traceback.print_exc()
         return jsonify(success=False, error=f"清除失败: {str(e)}"), 500
 
-###############################
 # === 查看所有用户 ===
 @app.route('/users', methods=['GET'])
 def get_users():
@@ -586,7 +585,7 @@ def export_attendance():
     try:
         mode = request.args.get("mode", "user").strip().lower()
         user_filter = request.args.get("user", "").strip()
-        month_filter = request.args.get("month", "").strip()  # 格式：YYYY-MM
+        month_filter = request.args.get("month", "").strip()
 
         if not month_filter:
             return jsonify(msg="必须提供 month 参数（如 2025-07）"), 400
@@ -641,7 +640,7 @@ def export_attendance():
                 "received_at": record.received_at,
                 "from_cache": record.from_cache,
                 "source": record.source,
-                "result": record.status,  # 可以自定义映射
+                "result": record.status,
                 "reason": None,
                 "start_time": None,
                 "end_time": None,
@@ -748,12 +747,12 @@ def export_attendance():
         log_entry = ExportLog(
             user_id=user_filter if user_filter else None,
             month=month_filter,
-            filename=local_filename  # 或 local_filename 看你想记录哪个
+            filename=local_filename
         )
         db.session.add(log_entry)
         db.session.commit()
 
-        # === 发送文件给用户（只使用一次路径）===
+        # === 发送文件给用户 ===
         return send_file(
             export_path,
             as_attachment=True,
@@ -847,8 +846,8 @@ def update_beacon():
 def set_work_hours():
     try:
         data = request.get_json()
-        start_time = data.get("start_time")  # 格式: "09:00"
-        end_time = data.get("end_time")      # 格式: "18:00"
+        start_time = data.get("start_time")
+        end_time = data.get("end_time")
 
         # 格式验证
         def validate_time(t):
@@ -882,7 +881,6 @@ def get_work_hours():
         "end_time": end
     })
 
-###############################
 # === 判断当前时间是否处于禁止打卡时间段 ===
 @app.route('/is_forbidden_time', methods=['GET'])
 @jwt_required()
@@ -1009,7 +1007,7 @@ def delete_forbidden_period(id):
 def get_monthly_attendance():
     try:
         current_user = get_jwt_identity()
-        month = request.args.get("month")  # 格式："2025-07"
+        month = request.args.get("month")
 
         if not month:
             return jsonify(success=False, error="缺少 month 参数，格式应为 YYYY-MM"), 400
@@ -1141,7 +1139,6 @@ def clock_out():
         traceback.print_exc()
         return jsonify(success=False, error=str(e)), 500
 
-###############################
 # === 删除用户上传的下班打卡记录 ===
 @app.route('/test/clockout', methods=['DELETE'])
 def test_delete_clock_out_by_username():
