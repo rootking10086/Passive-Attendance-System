@@ -1,0 +1,3 @@
+chomd +x check_wifi_or_ap.sh
+chmod +x to_STA_mode.sh
+chmod +x to_AP_mode.sh

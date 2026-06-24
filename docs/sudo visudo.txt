@@ -1,0 +1,1 @@
+www-data ALL=(ALL) NOPASSWD: /sbin/reboot, /bin/mv, /sbin/wpa_cli, /bin/systemctl, /bin/cat, /bin/echo, /sbin/ip, /sbin/ifconfig, /sbin/dhclient, /home/pi/Desktop/net_mode_manager/to_STA_mode.sh, /sbin/iwlist, /home/pi/Desktop/log.txt

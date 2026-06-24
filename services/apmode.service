@@ -1,0 +1,15 @@
+[Unit]
+Description=Start Wi-Fi or AP Mode on Boot
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/pi/Desktop/net_mode_manager/check_wifi_or_ap.sh
+Restart=no
+TimeoutStartSec=60s
+RemainAfterExit=true
+User=pi
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=Python mDNS Zeroconf Service
+After=network.target
+
+[Service]
+ExecStart=/home/pi/Desktop/myenv/bin/python3 /home/pi/Desktop/mdns_service/mdns_service.py
+WorkingDirectory=/home/pi/Desktop/mdns_service
+#StandardOutput=append:/home/pi/Desktop/mdns_service_stdout.log
+#StandardError=append:/home/pi/Desktop/mdns_service_stderr.log
+Restart=always
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target
