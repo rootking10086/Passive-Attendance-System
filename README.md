@@ -1,4 +1,4 @@
-# 🎯 被动考勤系统 (Passive Attendance System)
+# 🎯 无感考勤系统 (Passive Attendance System)
 
 > 基于树莓派 + 蓝牙低功耗 (BLE) 的**无感考勤解决方案** —— 员工走近即签到，无需掏出手机或刷卡。
 
@@ -23,6 +23,7 @@
 本项目已在以下硬件平台上完成测试与验证，均能稳定运行：
 
 | 硬件平台 | 运行系统 | 测试状态 |
+| :--- | :--- | :--- |
 | **Raspberry Pi 4B** | Raspberry Pi OS (Bookworm) | ✅ 完全兼容 |
 | **Raspberry Pi Zero 2W** | Raspberry Pi OS (Bookworm) | ✅ 完全兼容 |
 
@@ -31,6 +32,7 @@
 ## 🧱 技术栈
 
 | 层级 | 技术 |
+| :--- | :--- |
 | **后端** | Python 3.10 + Flask + SQLite + JWT |
 | **蓝牙扫描** | `bluepy` / `bleak` (BLE 协议栈) |
 | **网络管理** | Bash 脚本 + `create_ap` (热点工具) + `systemd` |
@@ -42,32 +44,38 @@
 
 ## 📁 项目结构
 raspberry-pi-project/
-├── app/ # Flask 考勤应用
-│ ├── app.py # 主程序入口
-│ ├── requirements.txt # Python 依赖列表
-│ └── database/
-│ └── users.db # SQLite 用户/打卡数据
+├── app/                          # Flask Web 应用
+│   ├── app.py                    # 考勤应用主程序
+│   ├── requirements.txt          # Python 依赖
+│   └── database/
+│       └── users.db              # SQLite 数据库
 ├── scripts/
-│ └── network-mode/ # 网络模式切换脚本
-│ ├── to_STA_mode.sh # 切换到 WiFi 客户端模式
-│ ├── to_AP_mode.sh # 切换到 AP 热点模式
-│ └── check_wifi_or_ap.sh # 开机自检网络模式
-├── services/ # systemd 服务定义
-│ ├── apmode.service # 网络模式自启
-│ ├── mdns_service.service # mDNS 广播自启
-│ └── attendance.service # 考勤应用自启
+│   └── network-mode/             # 网络模式切换脚本
+│       ├── to_STA_mode.sh        # 切换到 WiFi 客户端模式
+│       ├── to_AP_mode.sh         # 切换到 AP 热点模式
+│       └── check_wifi_or_ap.sh   # 开机自启检测网络模式
+├── services/                     # systemd 服务文件
+│   ├── apmode.service            # 网络模式自启服务
+│   ├── mdns_service.service      # mDNS 广播服务
+│   └── attendance.service        # 考勤应用自启服务
 ├── web/
-│ └── wifi-setup/ # 配网 Web 界面
-│ ├── index.php # 配网主页面
-│ └── lighttpd.conf # lighttpd 配置模板
+│   └── wifi-setup/               # 配网 Web 页面
+│       ├── index.php             # 配网页面 (PHP)
+│       └── lighttpd.conf         # lighttpd Web 服务器配置
 ├── mdns/
-│ └── mdns_service.py # mDNS 服务注册脚本
-├── docs/ # 详细配置文档（按需查阅）
-├── python-env/ # 虚拟环境说明
+│   └── mdns_service.py           # mDNS 服务注册脚本
+├── docs/                         # 配置文档
+│   ├── apt-mirror.md             # APT 换源 & pip 镜像
+│   ├── create-ap-hotspot.md      # 创建 WiFi 热点
+│   ├── change-timezone.md        # 更改时区
+│   ├── sudo-permissions.md       # sudo 权限配置
+│   ├── setup-lighttpd.md         # lighttpd + PHP 配置
+│   ├── python-venv.md            # Python 虚拟环境
+│   └── key-conflict.md           # SSH 密钥冲突解决
+├── python-env/
+│   └── setup-venv.md             # 虚拟环境说明
 └── assets/
-└── screenshots/ # 界面截图
-
-text
+    └── screenshots/              # 截图
 
 ---
 
@@ -128,7 +136,7 @@ python app/app.py
 默认监听 0.0.0.0:5000，访问 http://树莓派IP:5000 即可使用。
 
 ⚠️ 常见问题与注意事项
-🔥 热点开启报错（如截图所示）
+🔥 热点开启报错
 若启动 AP 热点时提示 iptables 相关错误，执行：
 
 bash
