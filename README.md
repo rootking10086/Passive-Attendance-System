@@ -43,6 +43,8 @@
 ---
 
 ## 📁 项目结构
+
+```
 raspberry-pi-project/
 ├── app/                          # Flask Web 应用
 │   ├── app.py                    # 考勤应用主程序
@@ -76,6 +78,7 @@ raspberry-pi-project/
 │   └── setup-venv.md             # 虚拟环境说明
 └── assets/
     └── screenshots/              # 截图
+```
 
 ---
 
